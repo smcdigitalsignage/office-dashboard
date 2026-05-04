@@ -2,131 +2,114 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>SMC Master Dashboard</title>
+<title>SMC Live Crew Tracker</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100vw;height:100vh;overflow:hidden;background:#fff;font-family:'Arial Black', sans-serif;}
-.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;border: 4px solid #000;}
+.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;border: 6px solid #000;}
 
-/* Header Section */
-header{flex:0 0 12vh;display:flex;justify-content:space-between;align-items:center;padding:0 2vw;background:#fff;border-bottom:8px solid #ff0000;}
+/* Header with Live Clock */
+header{flex:0 0 12vh;display:flex;justify-content:space-between;align-items:center;padding:0 3vw;background:#fff;border-bottom:10px solid #ff0000;}
 .main-logo{height:9vh;}
-#clock-box{text-align:right;}
-#clock{font-size:5vh;font-weight:900;color:#000;}
+#clock{font-size:6vh;font-weight:900;color:#000;}
 
-/* Layout */
-.dashboard-body{flex:1;display:flex;flex-direction:column;background:#000;overflow:hidden;}
-.top-row{flex:3;display:flex;background:#fff;border-bottom:6px solid #000;min-height:0;}
-.bottom-row{flex:2.2;display:flex;background:#fff;min-height:0;}
+/* Main Body Table */
+.dashboard-body{flex:1;display:flex;flex-direction:column;background:#fff;padding:1.5vh;}
+.panel-header{background:#000;color:#fff;text-align:center;padding:1.5vh;font-size:3.5vh;border-bottom:6px solid #ff0000;text-transform:uppercase;margin-bottom:1vh;}
 
-/* Panels */
-.panel{display:flex;flex-direction:column;overflow:hidden;border-right:4px solid #000;}
-.panel-header{background:#000;color:#fff;text-align:center;padding:1vh;font-size:2.2vh;border-bottom:4px solid #ff0000;text-transform:uppercase;}
-
-/* Table Styling */
-.table-shell{flex:1;overflow-y:auto;background:#fff;}
 table{width:100%;border-collapse:collapse;table-layout:fixed;}
-th{background:#444;color:#fff;font-size:1.6vh;padding:1vh;text-align:center;text-transform:uppercase;}
-td{border:1px solid #000;padding:1.8vh 0.5vw;font-size:2.2vh;font-weight:900;text-align:center;text-transform:uppercase;}
+th{background:#333;color:#fff;padding:2vh;font-size:2.5vh;text-align:left;text-transform:uppercase;border: 2px solid #000;}
+td{border:3px solid #000;padding:3vh 2vw;font-size:3.5vh;font-weight:900;text-transform:uppercase;}
 
-/* Crew Status Colors */
-.status-in { background-color: #00ff00 !important; color: #000; } 
-.status-break { background-color: #ffff00 !important; color: #000; } 
-.status-out { background-color: #ff0000 !important; color: #fff; }
+/* Your Specific Color Logic */
+.status-in { background-color: #00ff00 !important; color: #000; } /* BRIGHT GREEN */
+.status-break { background-color: #ffff00 !important; color: #000; } /* YELLOW LUNCH */
+.status-out { background-color: #ff0000 !important; color: #fff; } /* RED OUT */
 
-/* Ticker */
-.ticker-bar{flex:0 0 5vh;background:#000;color:#fff;overflow:hidden;display:flex;align-items:center;border-top:4px solid #ff0000;}
-.ticker-wrap{white-space:nowrap;display:inline-block;padding-left:100%;animation:scroll 35s linear infinite;font-size:2.5vh;font-weight:900;}
-@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-200%); } }
+/* Ticker at the bottom */
+.ticker-bar{flex:0 0 6vh;background:#000;color:#fff;overflow:hidden;display:flex;align-items:center;border-top:5px solid #ff0000;}
+.ticker-wrap{white-space:nowrap;animation:scroll 30s linear infinite;font-size:3vh;font-weight:900;}
+@keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 </style>
 </head>
 <body>
 <div class="wrapper">
     <header>
         <img src="https://www.smithmachinery.com/wp-content/uploads/2021/05/logo.png" class="main-logo">
-        <div id="clock-box"><div id="clock">00:00:00 AM</div></div>
+        <div id="clock">00:00:00 AM</div>
     </header>
-    
     <div class="dashboard-body">
-        <div class="top-row">
-            <div class="panel" style="flex:2;">
-                <div class="panel-header">Precision Rigging Job List</div>
-                <div class="table-shell"><table><thead><tr><th>Company</th><th>Project</th><th>Date</th><th>Loc</th></tr></thead><tbody id="rigging-feed"></tbody></table></div>
-            </div>
-            <div class="panel" style="flex:1; border-right:none;">
-                <div class="panel-header">Posted</div>
-                <div class="table-shell"><table><thead><tr><th>Date</th><th>Company</th></tr></thead><tbody id="posted-feed"></tbody></table></div>
-            </div>
-        </div>
-        
-        <div class="bottom-row">
-            <div class="panel" style="flex:2;">
-                <div class="panel-header">Live Crew Status</div>
-                <div class="table-shell"><table><thead><tr><th>Name</th><th>Project</th><th>Status</th></tr></thead><tbody id="crew-feed"></tbody></table></div>
-            </div>
-            <div class="panel" style="flex:1; border-right:none;">
-                <div class="panel-header">Auctions</div>
-                <div class="table-shell"><table><thead><tr><th>Date</th><th>Location</th></tr></thead><tbody id="auctions-feed"></tbody></table></div>
-            </div>
-        </div>
+        <div class="panel-header">Live Shop Floor Status</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:30%;">Name</th>
+                    <th style="width:40%;">Current Location</th>
+                    <th style="width:30%;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="crew-feed">
+                </tbody>
+        </table>
     </div>
-    
-    <div class="ticker-bar"><div class="ticker-wrap">Welcome Bobby & Dustin! | Safety First | 600-ton capacity gantry system & powered skates active | Stay alert, stay safe!</div></div>
+    <div class="ticker-bar">
+        <div class="ticker-wrap">Welcome Bobby & Dustin! | Safety First | Smith Machinery Co. Inc. | Automated Tracking Active</div>
+    </div>
 </div>
 
 <script>
-function updateClock() {
-    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+// Live Time Clock
+function updateClock() { 
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
 }
-setInterval(updateClock, 1000);
+setInterval(updateClock, 1000); 
 updateClock();
 
-const sheetId = '1hGrL8qIobADDWp50jdB0Ch2IikuS8ZajyTiOwn5KB-4';
-
-// === GIDs (Replace with your actual tab GIDs) ===
-const gids = { 
-    crew: '0', 
-    rigging: '0', 
-    posted: '0',   
-    auctions: '0' 
-};
-
-function handleData(res, targetId, isCrew, cols) {
+// Data Handler
+function handleCrewData(res) {
     if (!res || !res.table) return;
     let html = '';
     res.table.rows.forEach((row, i) => {
-        if(i === 0) return; 
+        if(i === 0) return; // Skip the sheet header row
+        
         let cells = row.c.map(c => c ? c.v : "");
+        let name = cells[0] || "---";
+        let location = cells[1] || "SHOP";
+        let status = cells[2] || "OUT";
+        
         let rowClass = "";
-        if(isCrew){
-            let s = String(cells[2]||"").toLowerCase();
-            if(s.includes("in")) rowClass="status-in";
-            else if(s.includes("break")||s.includes("lunch")) rowClass="status-break";
-            else rowClass="status-out";
+        let icon = "";
+        let s = String(status).toLowerCase();
+        
+        if(s.includes("in") || s.includes("work")) {
+            rowClass = "status-in";
+            icon = "🟢 ";
+        } else if(s.includes("break") || s.includes("lunch")) {
+            rowClass = "status-break";
+            icon = "☕ ";
+        } else {
+            rowClass = "status-out";
+            icon = "⛔ ";
         }
-        html += `<tr class="${rowClass}">`;
-        for(let j=0; j<cols; j++) {
-            html += `<td>${cells[j] || ""}</td>`;
-        }
-        html += `</tr>`;
+        
+        html += `<tr class="${rowClass}">
+                    <td>${name}</td>
+                    <td>${location}</td>
+                    <td>${icon}${status}</td>
+                 </tr>`;
     });
-    document.getElementById(targetId).innerHTML = html;
+    document.getElementById('crew-feed').innerHTML = html;
 }
 
-window.handleCrew = r => handleData(r, 'crew-feed', true, 3);
-window.handleRigging = r => handleData(r, 'rigging-feed', false, 4);
-window.handlePosted = r => handleData(r, 'posted-feed', false, 2);
-window.handleAuctions = r => handleData(r, 'auctions-feed', false, 2);
-
-function fetchAll() {
-    Object.keys(gids).forEach(key => {
-        let s = document.createElement('script');
-        s.src = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gids[key]}&tqx=out:json;responseHandler:handle${key.charAt(0).toUpperCase()+key.slice(1)}&cb=${Date.now()}`;
-        document.body.appendChild(s);
-    });
+// Data Puller
+function refresh() {
+    let s = document.createElement('script');
+    // Pulls from the first tab (gid=0)
+    s.src = `https://docs.google.com/spreadsheets/d/1hGrL8qIobADDWp50jdB0Ch2IikuS8ZajyTiOwn5KB-4/gviz/tq?gid=0&tqx=out:json;responseHandler:handleCrewData&cb=${Date.now()}`;
+    document.body.appendChild(s);
 }
-fetchAll();
-setInterval(fetchAll, 60000);
+refresh(); 
+setInterval(refresh, 60000); // Update every minute
 </script>
 </body>
 </html>
