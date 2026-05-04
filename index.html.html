@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SMC Master Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100vw;height:100vh;overflow:hidden;background:#000;font-family:'Arial Black', Gadget, sans-serif;}
+.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;background:#000;overflow:hidden;}
+header{flex:0 0 10vh;display:flex;justify-content:space-between;align-items:center;padding:0 2vw;background:#fff;border-bottom:0.6vh solid #ff0000;}
+.header-side{flex:1;display:flex;align-items:center;height:100%;}
+.header-center{flex:1.5;display:flex;justify-content:center;align-items:center;height:100%;}
+.main-logo{height:8vh;max-width:100%;object-fit:contain;}
+.side-logo{height:6vh;max-width:100%;object-fit:contain;}
+.dashboard-body{flex:1 1 0;display:flex;flex-direction:column;min-height:0;background:#000;}
+.top-row{flex:3;display:flex;flex-direction:row;min-height:0;background:#fff;border-bottom:0.6vh solid #000;}
+.calendar-box{flex:0 0 75%;display:flex;flex-direction:column;min-height:0;border-right:0.6vw solid #000;overflow:hidden;position:relative;background:#fff;}
+.posted-auctions-column{flex:0 0 25%;display:flex;flex-direction:column;min-height:0;background:#fff;}
+.posted-half{flex:1 1 50%;display:flex;flex-direction:column;min-height:0;background:#fff;border-bottom:0.4vw solid #000;}
+.auction-half{flex:1 1 50%;display:flex;flex-direction:column;min-height:0;background:#fff;}
+.bottom-row{flex:1.2;display:flex;flex-direction:row;min-height:0;background:#000;}
+.rigging-box{flex:0 0 50%;display:flex;flex-direction:column;min-height:0;background:#fff;border-right:0.4vw solid #000;overflow:hidden;}
+.crew-status-box{flex:0 0 25%;display:flex;flex-direction:column;min-height:0;background:#fff;border-right:0.4vw solid #000;overflow:hidden;}
+.weather-box{flex:0 0 25%;display:flex;flex-direction:column;min-height:0;background:#fff;}
+.panel-header{font-size:1.8vh;font-weight:900;padding:0.4vh;color:#fff;background:#000;text-transform:uppercase;text-align:center;border-bottom:0.4vh solid #ff0000;flex-shrink:0;}
+.panel-header.red-sub{background:#ff0000;border-bottom-color:#000;}
+.table-shell{flex:1 1 0;overflow-y:auto;padding:0;display:flex;}
+table{width:100%;height:100%;border-collapse:collapse;table-layout:fixed;border:0.3vh solid #000;}
+td,th{border:0.2vh solid #000;padding:0.15vh 0.5vw;font-size:1.5vh;text-align:center;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+th{background:#333;color:white;text-transform:uppercase;position:sticky;top:0;z-index:5;height:3.5vh;}
+.posted-auctions-column td{font-size:1.6vh;padding:1vh 0.2vw;white-space:normal;word-wrap:break-word;}
+tr:nth-child(odd) td{background:#ff0000;color:#fff;}
+tr:nth-child(even) td{background:#e0e0e0;color:#000;}
+.iframe-container{flex:1 1 0;overflow:hidden;position:relative;display:block;pointer-events:none;}
+.iframe-container iframe{position:absolute;top:0;left:0;width:117.65% !important;height:calc(117.65% + 65px) !important;transform:scale(0.85);transform-origin:top left;border:none !important;filter:contrast(1.1) brightness(1.05);}
+.weather-content{flex:1;display:flex;justify-content:space-around;align-items:center;padding:0 0.5vw;background:linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1506588345361-5e12b7840845?q=80&w=600&auto=format&fit=crop') center/cover no-repeat;}
+.weather-day{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.weather-day span{font-size:1.6vh;font-weight:900;color:#fff;text-shadow:2px 2px 4px #000;}
+.weather-day img{height:4.5vh;margin:0.5vh 0;filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.5));}
+.bottom-ticker-bar{flex:0 0 4vh;display:flex;align-items:center;background:#000;border-top:0.5vh solid #ff0000;overflow:hidden;position:relative;}
+.ticker-tag-red{background:#ff0000;color:#fff;font-weight:900;font-size:1.7vh;padding:0 1.5vw;height:100%;display:flex;align-items:center;z-index:10;border-right:0.4vw solid #000;}
+.ticker-scroller{position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;white-space:nowrap;animation:scroll 60s linear infinite;}
+.ticker-scroller span{font-size:2.2vh;font-weight:900;color:#fff;margin-right:8vw;line-height:1;}
+@keyframes scroll{0%{transform:translateX(100vw);}100%{transform:translateX(-100%);}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<header>
+<div class="header-side"><img src="https://static.wixstatic.com/media/d405a7_d80673f0e4a3494aaaeade17a651ffe9~mv2.png" class="side-logo" alt="Precision Rigging"></div>
+<div class="header-center"><img src="https://www.smithmachinery.com/wp-content/uploads/2021/05/logo.png" class="main-logo" alt="Smith Machinery"></div>
+<div class="header-side" style="justify-content:flex-end;"><img src="https://static.machinetools.com/uploads/766325/SMC-llc-auctions-liquidations-appraisals.jpg" class="side-logo" alt="SMC Auctions"></div>
+</header>
+<div class="dashboard-body">
+<div class="top-row">
+<div class="calendar-box">
+<div class="panel-header red-sub">COMPANY SCHEDULE</div>
+<div class="iframe-container"><iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FChicago&showPrint=0&showTitle=0&showNav=0&showTabs=0&showTz=0&mode=MONTH&src=c21jZGlnaXRhbHNpZ25hZ2VAZ21haWwuY29t&src=bzlrYXQwOWhjYmNtZXUwbmJ0YmVhbnB2dG9ybnVrYTBAaW1wb3J0LmNhbGVuZGFyLmdvb2dsZS5jb20&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23039be5&color=%23ef6c00&color=%230b8043" frameborder="0" scrolling="no"></iframe></div>
+</div>
+<div class="posted-auctions-column">
+<div class="posted-half">
+<div class="panel-header">POSTED</div>
+<div class="table-shell">
+<table>
+<thead><tr><th style="width:40%;">Date</th><th>Company</th></tr></thead>
+<tbody>
+<tr><td>1/23</td><td>Productivity Inc.</td></tr>
+<tr><td>1/29, 3/26</td><td>Seven Beverages</td></tr>
+<tr><td>3/12</td><td>IDEA Consulting</td></tr>
+<tr><td>3/26</td><td>Berry Plastics</td></tr>
+<tr><td>4/13</td><td>DSM Iron & Supply</td></tr>
+<tr><td>4/23</td><td>Russell Pump & Eng.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="auction-half">
+<div class="panel-header red-sub">AUCTIONS</div>
+<div class="table-shell">
+<table>
+<thead><tr><th style="width:45%;">Date</th><th>Location</th></tr></thead>
+<tbody>
+<tr><td>5/15 - 5/19</td><td>ICF Crafters (Boone)</td></tr>
+<tr><td>5/28 - 6/2</td><td>Manning-Seivert (Marne)</td></tr>
+<tr><td>6/16 - 6/23</td><td>Sheet Metal Eng (DSM)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="bottom-row">
+<div class="rigging-box">
+<div class="panel-header">PRECISION RIGGING JOB LIST</div>
+<div class="table-shell">
+<table>
+<thead><tr><th>Company</th><th>Project</th><th>Date</th><th>Location</th></tr></thead>
+<tbody>
+<tr><td>John Deere</td><td>Titan 3D</td><td>5/5</td><td>Ankeny</td></tr>
+<tr><td>John Deere</td><td>Load Okuma</td><td>5/6</td><td>Ankeny</td></tr>
+<tr><td>FS Repair</td><td>Lathe move</td><td>5/7</td><td>Kingsley</td></tr>
+<tr><td>Prairie Fab</td><td>Mazak Laser</td><td>5/11</td><td>Storm Lake, IA</td></tr>
+<tr><td>DeeZee</td><td>Remove Hyd. Tank</td><td>ACTIVE</td><td>Des Moines</td></tr>
+<tr><td>Artistic Iron</td><td>Service call</td><td>ACTIVE</td><td>Des Moines</td></tr>
+<tr><td>Watson Metal</td><td>Unload Press</td><td>ACTIVE</td><td>Hiawatha</td></tr>
+<tr><td>John Deere</td><td>1500 ton scrap</td><td>ACTIVE</td><td>Ankeny</td></tr>
+<tr><td>Emmerson</td><td>Fisher Comp.</td><td>ACTIVE</td><td>Marshalltown</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="crew-status-box">
+<div class="panel-header">LIVE CREW STATUS</div>
+<div class="table-shell">
+<table>
+<thead><tr><th style="width:30%;">Name</th><th style="width:40%;">Loc</th><th style="width:30%;">Status</th></tr></thead>
+<tbody id="busybusy-feed">
+<tr><td colspan="3">Connecting to Live Feed...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="weather-box">
+<div class="panel-header red-sub">AMES FORECAST</div>
+<div class="weather-content">
+<div class="weather-day"><span>TUE</span><img src="https://ssl.gstatic.com/onebox/weather/64/sunny.png" alt="Sunny"><span>64° 47°</span></div>
+<div class="weather-day"><span>WED</span><img src="https://ssl.gstatic.com/onebox/weather/64/partly_cloudy.png" alt="Cloudy"><span>68° 50°</span></div>
+<div class="weather-day"><span>THU</span><img src="https://ssl.gstatic.com/onebox/weather/64/rain.png" alt="Rain"><span>60° 45°</span></div>
+</div>
+</div>
+</div>
+<div class="bottom-ticker-bar">
+<div class="ticker-tag-red">UPDATES</div>
+<div class="ticker-scroller">
+<span>Welcome to Smith Machinery Company! ☀️ Ames Weather - May 5, 2026: Sunny, High 64°F, Low 47°F. 🏗️ Rigging Rule #7: A dropped load is just a very fast, highly stressful, unplanned gravity test. 📅 COMPANY CALENDAR UPDATED: May 5, 2026.</span>
+</div>
+</div>
+</div>
+<script>
+// JSONP Hack: The unblockable data engine
+function handleSheetData(response) {
+  if (!response || !response.table || !response.table.rows) return;
+  var rows = response.table.rows;
+  var html = '';
+  
+  for (var i = 0; i < rows.length; i++) {
+    var c = rows[i].c;
+    if (!c || !c[0] || !c[0].v) continue;
+    
+    var n = String(c[0].v).trim();
+    var l = c[1] && c[1].v ? String(c[1].v).trim() : '';
+    var s = c[2] && c[2].v ? String(c[2].v).trim() : '';
+    
+    if(n.toLowerCase() === 'name' || n === '') continue;
+    
+    var k = '🟢';
+    if (s.toLowerCase().indexOf('break') !== -1) k = '☕';
+    else if (s.toLowerCase().indexOf('out') !== -1) k = '⛔';
+    
+    html += '<tr><td>' + n + '</td><td>' + l + '</td><td>' + k + ' ' + s + '</td></tr>';
+  }
+  
+  if (html === '') html = '<tr><td colspan="3">No active crew</td></tr>';
+  document.getElementById('busybusy-feed').innerHTML = html;
+}
+
+function updateCrew() {
+  var oldScript = document.getElementById('sheet-script');
+  if (oldScript) oldScript.remove();
+  
+  var script = document.createElement('script');
+  script.id = 'sheet-script';
+  // This URL forces Google to send the data back as an executable script, bypassing firewalls
+  script.src = 'https://docs.google.com/spreadsheets/d/1hGrL8qIobADDWp50jdB0Ch2IikuS8ZajyTiOwn5KB-4/gviz/tq?gid=0&tqx=out:json;responseHandler:handleSheetData&cb=' + new Date().getTime();
+  document.body.appendChild(script);
+}
+
+// Check immediately, then every 60 seconds
+updateCrew();
+setInterval(updateCrew, 60000);
+</script>
+</body>
+</html>
