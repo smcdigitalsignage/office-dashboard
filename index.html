@@ -2,32 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>SMC Live Status</title>
+<title>SMC Live Crew Status</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100vw;height:100vh;overflow:hidden;background:#fff;font-family:'Arial Black', sans-serif;}
-.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;border: 8px solid #000;}
+.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;border: 6px solid #000;}
 
-/* Header with Live Clock */
+/* Header */
 header{flex:0 0 12vh;display:flex;justify-content:space-between;align-items:center;padding:0 3vw;background:#fff;border-bottom:10px solid #ff0000;}
 .main-logo{height:9vh;}
 #clock{font-size:6vh;font-weight:900;color:#000;}
 
-/* Main Table Body */
-.dashboard-body{flex:1;display:flex;flex-direction:column;background:#fff;padding:1vh;}
-.panel-header{background:#000;color:#fff;text-align:center;padding:1.5vh;font-size:3.5vh;border-bottom:8px solid #ff0000;text-transform:uppercase;margin-bottom:1vh;}
+/* Main Table */
+.dashboard-body{flex:1;display:flex;flex-direction:column;background:#fff;padding:1.5vh;}
+.panel-header{background:#000;color:#fff;text-align:center;padding:1.5vh;font-size:3.5vh;border-bottom:6px solid #ff0000;text-transform:uppercase;margin-bottom:1vh;}
 
 table{width:100%;border-collapse:collapse;table-layout:fixed;}
-th{background:#333;color:#fff;padding:2vh;font-size:2.5vh;text-align:left;border: 2px solid #000;}
-td{border:3px solid #000;padding:3vh 2vw;font-size:4vh;font-weight:900;text-transform:uppercase;}
+th{background:#333;color:#fff;padding:2vh;font-size:2.5vh;text-align:left;text-transform:uppercase;border: 2px solid #000;}
+td{border:3px solid #000;padding:3vh 2vw;font-size:4.5vh;font-weight:900;text-transform:uppercase;}
 
-/* Your Specific Color Logic */
+/* Color Triggers */
 .status-in { background-color: #00ff00 !important; color: #000; } /* BRIGHT GREEN */
-.status-break { background-color: #ffff00 !important; color: #000; } /* YELLOW LUNCH */
-.status-out { background-color: #ff0000 !important; color: #fff; } /* RED OUT */
+.status-break { background-color: #ffff00 !important; color: #000; } /* YELLOW */
+.status-out { background-color: #ff0000 !important; color: #fff; } /* RED */
 
 .ticker-bar{flex:0 0 6vh;background:#000;color:#fff;overflow:hidden;display:flex;align-items:center;border-top:5px solid #ff0000;}
-.ticker-wrap{white-space:nowrap;animation:scroll 30s linear infinite;font-size:3.5vh;font-weight:900;}
+.ticker-wrap{white-space:nowrap;animation:scroll 30s linear infinite;font-size:3vh;font-weight:900;}
 @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 </style>
 </head>
@@ -38,23 +38,27 @@ td{border:3px solid #000;padding:3vh 2vw;font-size:4vh;font-weight:900;text-tran
         <div id="clock">00:00:00 AM</div>
     </header>
     <div class="dashboard-body">
-        <div class="panel-header">Live Crew Location & Status</div>
+        <div class="panel-header">Live Shop Status</div>
         <table>
             <thead>
                 <tr>
                     <th style="width:30%;">Name</th>
-                    <th style="width:45%;">Location / Project</th>
+                    <th style="width:45%;">Current Location</th>
                     <th style="width:25%;">Status</th>
                 </tr>
             </thead>
             <tbody id="crew-feed"></tbody>
         </table>
     </div>
-    <div class="ticker-bar"><div class="ticker-wrap">Welcome Bobby & Dustin! | Safety First | Smith Machinery Co. Inc.</div></div>
+    <div class="ticker-bar"><div class="ticker-wrap">Welcome Bobby & Dustin! | Safety First | Automated Equipment Tracking Active</div></div>
 </div>
+
 <script>
-function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }
-setInterval(updateClock, 1000); updateClock();
+function updateClock() { 
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
+}
+setInterval(updateClock, 1000); 
+updateClock();
 
 function handleData(res) {
     if (!res || !res.table) return;
@@ -62,26 +66,35 @@ function handleData(res) {
     res.table.rows.forEach((row, i) => {
         if(i === 0) return; 
         let cells = row.c.map(c => c ? c.v : "");
-        let name = cells[0] || "---";
-        let location = cells[1] || "SHOP";
-        let status = String(cells[2] || "OUT").toUpperCase();
+        let s = String(cells[2]||"").toLowerCase();
         
         let rowClass = "status-out";
         let icon = "⛔ ";
         
-        if (status.includes("BREAK") || status.includes("LUNCH")) { rowClass = "status-break"; icon = "☕ "; }
-        else if (status.includes("IN") || status.includes("WORK")) { rowClass = "status-in"; icon = "🟢 "; }
+        if (s.includes("break") || s.includes("lunch")) {
+            rowClass = "status-break";
+            icon = "☕ ";
+        } else if (s.includes("in") || s.includes("work")) {
+            rowClass = "status-in";
+            icon = "🟢 ";
+        }
 
-        html += `<tr class="${rowClass}"><td>${name}</td><td>${location}</td><td>${icon}${status}</td></tr>`;
+        html += `<tr class="${rowClass}">
+                    <td>${cells[0]}</td>
+                    <td>${cells[1]}</td>
+                    <td>${icon}${cells[2]}</td>
+                 </tr>`;
     });
     document.getElementById('crew-feed').innerHTML = html;
 }
+
 function refresh() {
     let s = document.createElement('script');
     s.src = `https://docs.google.com/spreadsheets/d/1hGrL8qIobADDWp50jdB0Ch2IikuS8ZajyTiOwn5KB-4/gviz/tq?gid=0&tqx=out:json;responseHandler:handleData&cb=${Date.now()}`;
     document.body.appendChild(s);
 }
-refresh(); setInterval(refresh, 60000);
+refresh(); 
+setInterval(refresh, 60000);
 </script>
 </body>
 </html>
