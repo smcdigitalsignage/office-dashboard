@@ -2,110 +2,126 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<title>SMC Master Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100vw;height:100vh;overflow:hidden;background:#000;font-family:'Arial Black', sans-serif;}
-.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;}
+html,body{width:100vw;height:100vh;overflow:hidden;background:#fff;font-family:'Arial Black', sans-serif;}
+.wrapper{display:flex;flex-direction:column;width:100vw;height:100vh;border: 5px solid #000;}
 
-/* Header with Clock */
-header{flex:0 0 10vh;display:flex;justify-content:space-between;align-items:center;padding:0 3vw;background:#fff;border-bottom:0.6vh solid #ff0000;}
-.main-logo{height:8vh;}
-#clock{font-size:4vh;color:#000;font-weight:900;}
+/* Header */
+header{flex:0 0 12vh;display:flex;justify-content:space-between;align-items:center;padding:0 2vw;background:#fff;border-bottom:8px solid #ff0000;}
+.main-logo{height:9vh;}
+#clock-box{text-align:right;}
+#clock{font-size:5vh;font-weight:900;color:#000;}
 
-/* Main Body */
-.crew-container{flex:1;display:flex;flex-direction:column;background:#fff;padding:1vh;}
-.panel-header{background:#000;color:#fff;text-align:center;padding:1.5vh;font-size:3vh;border-bottom:0.5vh solid #ff0000;text-transform:uppercase;}
+/* Main Body Layout */
+.dashboard-body{flex:1;display:flex;flex-direction:column;background:#000;overflow:hidden;}
+.top-row{flex:3;display:flex;background:#fff;border-bottom:6px solid #000;min-height:0;}
+.bottom-row{flex:2;display:flex;background:#fff;min-height:0;}
 
+/* Panel Containers */
+.panel{display:flex;flex-direction:column;overflow:hidden;border-right:4px solid #000;}
+.panel-header{background:#000;color:#fff;text-align:center;padding:0.8vh;font-size:2.2vh;border-bottom:4px solid #ff0000;text-transform:uppercase;}
+
+/* Table Styling */
+.table-shell{flex:1;overflow-y:auto;background:#fff;}
 table{width:100%;border-collapse:collapse;table-layout:fixed;}
-th{background:#333;color:#fff;padding:1.5vh;font-size:2vh;text-align:left;text-transform:uppercase;}
-td{border:0.2vh solid #000;padding:2.5vh 2vw;font-size:2.5vh;font-weight:900;text-transform:uppercase;}
+th{background:#444;color:#fff;font-size:1.6vh;padding:1vh;text-align:center;}
+td{border:1px solid #000;padding:1.5vh 0.5vw;font-size:2vh;font-weight:900;text-align:center;text-transform:uppercase;}
 
-/* Dynamic Status Colors */
+/* Crew Status Colors (From your screenshot) */
 .status-in { background-color: #00ff00 !important; color: #000; } 
 .status-break { background-color: #ffff00 !important; color: #000; } 
 .status-out { background-color: #ff0000 !important; color: #fff; }
+
+/* Ticker */
+.ticker-bar{flex:0 0 5vh;background:#000;color:#fff;overflow:hidden;display:flex;align-items:center;border-top:4px solid #ff0000;}
+.ticker-wrap{white-space:nowrap;animation:scroll 30s linear infinite;font-size:2.5vh;font-weight:900;}
+@keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 </style>
 </head>
 <body>
 <div class="wrapper">
     <header>
         <img src="https://www.smithmachinery.com/wp-content/uploads/2021/05/logo.png" class="main-logo">
-        <div id="clock">00:00:00 AM</div>
+        <div id="clock-box"><div id="clock">00:00:00 AM</div></div>
     </header>
-    <div class="crew-container">
-        <div class="panel-header">Live Crew Status</div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:25%;">Name</th>
-                    <th style="width:45%;">Current Project</th>
-                    <th style="width:30%;">Status</th>
-                </tr>
-            </thead>
-            <tbody id="crew-feed">
-                <tr><td colspan="3">Connecting to busybusy feed...</td></tr>
-            </tbody>
-        </table>
+    
+    <div class="dashboard-body">
+        <div class="top-row">
+            <div class="panel" style="flex:2;">
+                <div class="panel-header">Precision Rigging Job List</div>
+                <div class="table-shell"><table><thead><tr><th>Company</th><th>Project</th><th>Date</th><th>Loc</th></tr></thead><tbody id="rigging-feed"></tbody></table></div>
+            </div>
+            <div class="panel" style="flex:1; border-right:none;">
+                <div class="panel-header">Posted</div>
+                <div class="table-shell"><table><thead><tr><th>Date</th><th>Company</th></tr></thead><tbody id="posted-feed"></tbody></table></div>
+            </div>
+        </div>
+        
+        <div class="bottom-row">
+            <div class="panel" style="flex:2;">
+                <div class="panel-header">Live Crew Status</div>
+                <div class="table-shell"><table><thead><tr><th>Name</th><th>Project</th><th>Status</th></tr></thead><tbody id="crew-feed"></tbody></table></div>
+            </div>
+            <div class="panel" style="flex:1; border-right:none;">
+                <div class="panel-header">Auctions</div>
+                <div class="table-shell"><table><thead><tr><th>Date</th><th>Location</th></tr></thead><tbody id="auctions-feed"></tbody></table></div>
+            </div>
+        </div>
     </div>
+    
+    <div class="ticker-bar"><div class="ticker-wrap">Welcome Bobby & Dustin! | Safety First | Automated Equipment Tracking Active</div></div>
 </div>
 
 <script>
-// Live Clock Script
 function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// Data Feed Script
-function handleSheetData(response) {
-    if (!response || !response.table || !response.table.rows) return;
-    var rows = response.table.rows;
-    var html = '';
-    
-    // Starting at i=1 to skip the header row in your sheet
-    for (var i = 1; i < rows.length; i++) {
-        var c = rows[i].c;
-        if (!c || !c[0]) continue;
-        
-        var name = c[0].v || "";
-        var project = c[1] ? c[1].v : "---";
-        var status = c[2] ? c[2].v : "Offline";
-        
-        var rowClass = "";
-        var icon = "";
-        var sLower = status.toLowerCase();
+const sheetId = '1hGrL8qIobADDWp50jdB0Ch2IikuS8ZajyTiOwn5KB-4';
+// IMPORTANT: Update these GIDs once you make your tabs
+const gids = { 
+    crew: '0', 
+    rigging: '0', // Change to your Rigging tab GID
+    posted: '0',  // Change to your Posted tab GID
+    auctions: '0' // Change to your Auctions tab GID
+};
 
-        if (sLower.includes("break") || sLower.includes("lunch")) {
-            rowClass = "status-break";
-            icon = "☕ ";
-        } else if (sLower.includes("in") || sLower.includes("working")) {
-            rowClass = "status-in";
-            icon = "🟢 ";
-        } else {
-            rowClass = "status-out";
-            icon = "⛔ ";
+function handleData(res, targetId, isCrew) {
+    if (!res || !res.table) return;
+    let html = '';
+    res.table.rows.forEach((row, i) => {
+        if(i === 0) return; 
+        let cells = row.c.map(c => c ? c.v : "");
+        let rowClass = "";
+        if(isCrew){
+            let s = String(cells[2]||"").toLowerCase();
+            if(s.includes("in")) rowClass="status-in";
+            else if(s.includes("break")||s.includes("lunch")) rowClass="status-break";
+            else rowClass="status-out";
         }
-
-        html += `<tr class="${rowClass}">
-                    <td>${name}</td>
-                    <td>${project}</td>
-                    <td>${icon}${status}</td>
-                 </tr>`;
-    }
-    document.getElementById('crew-feed').innerHTML = html || '<tr><td colspan="3">No active crew data</td></tr>';
+        html += `<tr class="${rowClass}">${cells.map(v => `<td>${v}</td>`).join('')}</tr>`;
+    });
+    document.getElementById(targetId).innerHTML = html;
 }
 
-function updateData() {
-    var script = document.createElement('script');
-    // Using your specific Sheet ID
-    script.src = 'https://docs.google.com/spreadsheets/d/1hGrL8qIobADDWp50jdB0Ch2IikuS8ZajyTiOwn5KB-4/gviz/tq?gid=0&tqx=out:json;responseHandler:handleSheetData&cb=' + new Date().getTime();
-    document.body.appendChild(script);
-}
+window.handleCrew = r => handleData(r, 'crew-feed', true);
+window.handleRigging = r => handleData(r, 'rigging-feed', false);
+window.handlePosted = r => handleData(r, 'posted-feed', false);
+window.handleAuctions = r => handleData(r, 'auctions-feed', false);
 
-setInterval(updateData, 60000); // Check for crew updates every 60 seconds
-updateData();
+function fetchAll() {
+    Object.keys(gids).forEach(key => {
+        let s = document.createElement('script');
+        s.src = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gids[key]}&tqx=out:json;responseHandler:handle${key.charAt(0).toUpperCase()+key.slice(1)}&cb=${Date.now()}`;
+        document.body.appendChild(s);
+    });
+}
+fetchAll();
+setInterval(fetchAll, 60000);
 </script>
 </body>
 </html>
